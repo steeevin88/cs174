@@ -17,6 +17,7 @@
     {
         // sanitize super global variable
         $name = htmlentities($_FILES['filename']['tmp_name']);
+        // validate file name
         $name = strtolower(preg_replace("[^A-Za-z0-9]", "", $name));
         main($name); // run the main function...
     }
@@ -106,8 +107,6 @@
     }
 
     function main($name) {
-        // Create an instance of the Primes class in preparation for memoization
-        $primes = new Primes();
         $fh = fopen($name, 'r') or die("File does not exist or you lack permission to open it"); // inputs
         $outputs = [
             0 => "2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97",
@@ -134,7 +133,7 @@
             if (is_numeric($input[0]) && strpos($input[0], '.') == false) $input[0] = intval($input[0]);
             if (is_numeric($input[1]) && strpos($input[1], '.') == false) $input[1] = intval($input[1]);
             
-            $primes->tester_function($primes->primesInRange($input[0], $input[1]), $outputs[$index++]);
+            Primes::tester_function(Primes::primesInRange($input[0], $input[1]), $outputs[$index++]);
         }
 
         fclose($fh);

@@ -1,0 +1,17 @@
+CREATE DATABASE camera_output;
+
+USE camera_output;
+
+CREATE TABLE first_table(
+    id VARCHAR(64) NOT NULL, # I'm assuming that camera IDs from manufacturers are relatively long, but not super long. Since we're told the camera ID fits on the backside of a camera, which I'm assuming isn't that big, then 64 bytes for the ID seems reasonable. I made it NOT NULL because every camera should/ must have an ID.
+    timestamp TIMESTAMP NOT NULL, # I used the TIMESTAMP data type because we discussed in class we could use it or DATETIME. I made it NOT NULL because videos made with cameras always automatically have timestamps associated to the video.
+    video_content VARCHAR(128) NOT NULL, # I made this 128 bytes as we discussed in class; I looked at some paths to files on my own computer, and they usually aren't too long (around 30 characters, so 30 bytes). 128 bytes should be more than enough to account for really long, unordinary paths. I made it NOT NULL because a video entry should have content: it's the most important part.
+    thumbnail VARCHAR(128) NOT NULL, # again, 128 bytes should be MORE than enough to account for really long, wacky paths. I thought about not making the thumbnail NOT NULL because thumbnails aren't the most important thing for a video, but I think every camera chooses a default thumbnail for every video, so a video entry having no thumbnail doesn't make sense.
+    hash BINARY(32) NOT NULL) # we're told each hash is ALWAYS 32 bytes, so using BINARY makes sense as we have a fixed size for all hashes. I made it NOT NULL because a hash should be required to protect the videos, in case our database gets hacked.
+ENGINE InnoDB;
+
+CREATE TABLE second_table(
+    hash BINARY(32) NOT NULL, # we're told each hash is ALWAYS 32 bytes, so using BINARY makes sense as we have a fixed size for all hashes. I made it NOT NULL because a hash should be required to protect the videos, in case our database gets hacked.
+    image_content VARCHAR(128) NOT NULL, # again, 128 bytes should be MORE than enough to account for really long, wacky paths. I made it NOT NULL because the image content is the defing feature of an image entry. It wouldn't make sense to allow this column to be empty.
+    timestamp TIMESTAMP NOT NULL) # I used the TIMESTAMP data type because we discussed in class we could use it or DATETIME. I made it NOT NULL because all photos/images nowadays have timestamps tied to them, especially if they're taken on a camera.
+ENGINE InnoDB;
