@@ -1,0 +1,7 @@
+.main_container {
+    display: flex;
+}
+
+.sub_container {
+    width: 100%;
+}
