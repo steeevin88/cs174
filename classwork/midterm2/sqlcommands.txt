@@ -1,0 +1,24 @@
+# we're going to create two tables, one for credentials, one for inputted information
+# in my PHP code, I've made checks for the existence of these tables before I run any INSERT queries, so these commands will also be seen in my PHP code as well as this file
+
+# table 1 will be called credentials... it contains the credentials of our users
+CREATE TABLE credentials(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(64),
+    name VARCHAR(64),
+    password CHAR(60)
+) ENGINE=InnoDB;";
+# for username and name, I made it VARCHAR(64), which I believe is a reasonable amount of space. I doubt people will have obnoxiously long usernames and names as it would be super tedious to type in when they want to log in
+# for password, since I use the password_hash() function alongside the "PASSWORD_DEFAULT" algorithm, hashes will always be of 60 characters in length, so I can use the CHAR type and specify a length of 60 for more efficient lookup
+
+# table 2 will be called threads... it'll store the text of users' uploaded files
+CREATE TABLE threads(
+    username VARCHAR(128), 
+    thread_name  VARCHAR(128),
+    preview_text VARCHAR(300),
+    file_content TEXT
+) ENGINE=InnoDB;
+# for username, thread_name I used VARCHAR(128), which I think is enough characters for a name and two lines of a text file
+# for preview_text, I fixed the preview to 300 characters since through your email, you said we could do that; thus, I used VARCHAR(300)
+    - I used VARCHAR because previews can be shorter than 300 characters if the file_content is too short
+# for file_content, I set it to text because the range for how large a .txt file is pretty big
