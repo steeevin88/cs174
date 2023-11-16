@@ -46,14 +46,18 @@
                 $result->data_seek($last_row);
                 $row = $result->fetch_array(MYSQLI_ASSOC);
 
-                echo <<<_END
-                    <b>Thread $counter: $thread_name</b>
-                    <p class="$counter">$preview_text...</p>
-                    <p class="$counter">$file_content</p>
-                    <button onclick='toggle($counter)'>Expand/ Collapse</button>
-                _END;
-                // collapse button
+                $thread_name = $row['thread_name'];
+                $preview_text = $row['preview_text'];
+                $file_content = $row['file_content'];
 
+                $last_row++; // increment this index b/c we have 0-indexing
+
+                echo <<<_END
+                    <b>Thread $last_row: $thread_name</b>
+                    <p class="$last_row">$preview_text...</p>
+                    <p style="display:none;" class="$last_row">$file_content</p>
+                    <button onclick='toggle($last_row)'>Expand/ Collapse</button><br><br>
+                _END;
             }
             // close file
             fclose($fh);

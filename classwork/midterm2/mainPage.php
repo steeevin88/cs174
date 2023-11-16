@@ -139,8 +139,8 @@
     if (isset($_POST['logout'])) {
         // destory session and data
         destroy_session_and_data();
-        // redirect user back to login page
-        header("Location: loginPage.php");
+        // redirect user back to login page --> I used Javascript because header() has errors if we've called "echo" on the page
+        echo '<script>window.location.href = "loginPage.php";</script>';
         exit;
     }
 
@@ -148,4 +148,4 @@
     if ($_FILES) {
         require_once 'addThreads.php';
     }
-?>  
+?>
