@@ -3,7 +3,15 @@
         <html>
             <head>
                 <title>Homework 6 - Steven Le</title>
-                <link rel="stylesheet" href="mainPage.css">
+                <style>
+                    .logout {
+                        position: absolute;
+                        top: 10px;
+                        right: 10px;
+                        z-index: 1;
+                    }
+                </style>
+                <script src="validateFunctions.js"></script>
             </head>
             <body>
             </body>
@@ -38,9 +46,9 @@
                 <form method="post" action="mainPage.php" class="logout">
                     <input type="submit" name="logout" value="Log Out">
                 </form>
-                <form method='post' action='mainPage.php' enctype='multipart/form-data'>
-                    Student Name: <input type='text' name='search_name' size='25'><br><br>
-                    Student ID: <input type='number' name='search_id' size='25'><br><br>
+                <form method='post' action='mainPage.php' enctype='multipart/form-data' onSubmit="return validateSearch(this)">
+                    Student Name: <input type='text' name='name' size='25'><br><br>
+                    Student ID: <input type='number' name='id' size='25'><br><br>
                     <input type='submit' name='search' value='SEARCH FOR ADVISOR INFORMATION'>
                 </form>
                 <hr/>
@@ -111,13 +119,15 @@
         advisorsTableExists($conn);
             
         // get user's text inputs --> sanitize them first...
-        $search_name = sanitizeMySQL($conn, $_POST['search_name']); 
-        $search_id = sanitizeMySQL($conn, $_POST['search_id']);
+        $search_name = sanitizeMySQL($conn, $_POST['name']); 
+        $search_id = sanitizeMySQL($conn, $_POST['id']);
 
-        // make sure fields aren't empty... I didn't use isset because empty inputs would still work
-        if ($search_name == '' || $search_id == '') {
-            echo "Error - Please fill in <b>both</b> fields.";
-        } else { // otherwise, get the advisor information based on the inputted student id
+        // validate form inputs (with PHP)
+        require_once 'validateFunctions.php';
+        $fail = validateName($search_name);
+        $fail .= validateID($search_id);
+
+        if ($fail == '') {
             // search for advisor based on the inputted student id
             $query = "SELECT * FROM advisors WHERE lowerbound <= $search_id AND upperbound >= $search_id";
             $result = $conn->query($query);
@@ -138,6 +148,8 @@
                 }
             }
             $conn->close();
+        } else {
+            echo $fail;
         }
     }
 ?>
