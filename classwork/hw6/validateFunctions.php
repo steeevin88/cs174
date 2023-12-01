@@ -25,6 +25,11 @@
   }
 
   // function to validate password input
+  // used in loginPage --> I differentiated this from signupPage's validatePassword because I think we shouldn't share password requirements on a login; users should know their password passes requirements when they signed up
+  function validatePasswordInput($password) {
+    return ($password == '') ? 'No password was entered.<br>' : '';
+  }
+  // function to validate password input
   // used in signupPage (not login --> I don't validate password because it would give hints (though to be fair, these hints are probably not that helpful to hackers) to potential hackers regarding how passwords are created)
   // I just made up some password requirements (based on the class slides...) --> these are the same checks as in validateFunctions.js
   function validatePassword($password) {
@@ -37,5 +42,4 @@
       return '';
     }
   }
-
 ?>

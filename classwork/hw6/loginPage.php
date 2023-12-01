@@ -42,6 +42,7 @@
         // validate form inputs (with PHP)
         require_once 'validateFunctions.php';
         $fail = validateEmail($email);
+        $fail .= validatePasswordInput($passwordString);
 
         if ($fail == '') { // no form errors...
             // look for a user with such information in our database

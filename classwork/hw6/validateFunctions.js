@@ -20,7 +20,7 @@ function validateLogin(form) {
   let fail = '';
 
   fail += validateEmail(form.email.value);
-  // I don't validate password because it would give hints (though to be fair, these hints are probably not that helpful to hackers) to potential hackers regarding how passwords are created
+  fail += validatePasswordInput(form.password.value);
 
   if (fail == "") return true;
   else {
@@ -56,7 +56,10 @@ function validateEmail(email) {
   else if (!((email.indexOf(".") > 0) && (email.indexOf("@") > 0)) || /[^a-zA-Z0-9.@_-]/.test(email)) return "The email address is invalid.\n"
   return ""
 }
-
+// used in loginPage --> I differentiated this from signupPage's validatePassword because I think we shouldn't share password requirements on a login; users should know their password passes requirements when they signed up
+function validatePasswordInput(password) {
+  return (password == '') ? 'No password was entered.\n' : '';
+}
 
 function validatePassword(password) {
   // I just made up some password requirements (based on the class slides...)
