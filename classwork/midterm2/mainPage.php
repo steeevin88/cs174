@@ -19,7 +19,9 @@
         </html>
     _END;
 
+    define('COOKIE_EXPIRATION_TIME', 2592000);
     session_start();
+
     if (isset($_SESSION['username'])) {
         // prevent session hijacking (same session id from different ip)
         if ($_SESSION['check'] != hash('ripemd128', $_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'])) different_user();
@@ -112,7 +114,7 @@
 
     function destroy_session_and_data() {
         $_SESSION = array();
-        setcookie(session_name(), '', time()-2592000, '/');
+        setcookie(session_name(), '', time()-COOKIE_EXPIRATION_TIME, '/');
         session_destroy();
     }
 
