@@ -46,12 +46,4 @@
     // validate file extension --> text/plain is a .txt file...
     else return ($ext == 'text/plain') ? '' : "\"$filename\" $ext is not an accepted input. Please upload a text file. <br>";
   }
-
-  // function used to validate key input --> checks for empty key, non-alphanumeric key
-  // used in mainPage
-  function validateKey($string) {
-    if ($string == '') return 'No key was entered. Please enter an alphanumeric string. <br>';
-    // ctype_alnum just checks if a string is alphanumeric --> I need to make sure the key is alphanumeric in order to implement my cipher
-    else return (ctype_alnum($string)) ? '' : 'Key is invalid. Please enter an alphanumeric string. <br>';
-  }
 ?>

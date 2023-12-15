@@ -31,10 +31,10 @@ function validateLogin(form) {
 function validateCipherRequest(form) {
   let fail = '';
 
-  /* I ONLY VALIDATE FILE AND KEY INPUTS --> I don't validate the method because by default, one of the methods is selected; thus, no matter what, the user is forced to select a method, so I don't need to check whether or not a method has been picked because we are guaranteed that a method is picked
-        --> basically, users can't "uncheck" a method, so since one of the methods is checked by default, there will always be a method selected */
   fail += validateFile(form.filename);
   fail += validateKey(form.key.value);
+  fail += validateMethod(form.method.value);
+  fail += validateSecondKey(form.secondKey.value, form.method.value);
 
   if (fail == "") return true;
   else {
@@ -52,6 +52,7 @@ function validateEmail(email) {
   else if (!((email.indexOf(".") > 0) && (email.indexOf("@") > 0)) || /[^a-zA-Z0-9.@_-]/.test(email)) return "The email address is invalid.\n"
   return ""
 }
+
 // used in loginPage --> I differentiated this from signupPage's validatePassword because I think we shouldn't share password requirements on a login; users should know their password passes requirements when they signed up
 function validatePasswordInput(password) {
   return (password == '') ? 'No password was entered.\n' : '';
@@ -84,9 +85,22 @@ function validateFile(file) {
 
 function validateKey(key) {
   if (key === '') {
-    return 'No key was entered. Please enter an alphanumeric string.\n';
+    return 'A key is missing. Please enter an alphanumeric string.\n';
   } else {
-    let alphanumericRegex = /^[a-zA-Z0-9]+$/;
-    return (alphanumericRegex.test(key)) ? '' : 'Key is invalid. Please enter an alphanumeric string.\n';
+    return (/^[a-zA-Z0-9]+$/.test(key)) ? '' : 'A key is invalid. Please enter an alphanumeric string.\n';
   }
+}
+
+function validateMethod(method) {
+  if (method == '') return 'No method was selected. Please select a method (button). \n';
+  else {
+    const validMethods = ["encryptSubstitution", "encryptTransposition", "decryptSubstitution", "decryptTransposition"];
+    return (validMethods.includes(method)) ? '' : 'Method is invalid. Choose a proper method. \n';
+  }
+}
+
+function validateSecondKey(key, method) {
+  // if we're not using double transposition, there's no error...
+  const methods = ["encryptTransposition", "decryptTransposition"];
+  return (!methods.includes(method)) ? '' : validateKey(key);
 }

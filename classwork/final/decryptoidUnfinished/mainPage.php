@@ -18,7 +18,7 @@
                     }
                     
                     .text-block {
-                        width: 47.5%; /* Adjust the width as needed */
+                        width: 47.5%;
                         border: none;
                         padding: 10px;
                         background-color: #d3d3d3;
@@ -39,6 +39,17 @@
                     
                 </style>
                 <script src="validateFunctions.js"></script>
+                <script>
+                    function disable2ndKeyField(radio) {
+                        // simple Javascript to disable or enable a text box
+                        const secondKey = document.getElementById('secondKey');
+                        if (radio.value.includes('Transposition')) secondKey.disabled = false;
+                        else {
+                            secondKey.disabled = true;
+                            secondKey.value = ''; // reset text field
+                        }
+                    }
+                </script>
             </head>
             <body>
             </body>
@@ -66,7 +77,6 @@
                 $_SESSION['initiated'] = 1;
             }
 
-            // display 3 things --> 1. generic welcome text, 2. log out button, 3. input forms (name, student_id)
             // I render this HTML here because I need to verify the session data first...
             echo <<<_END
             <div class="main_container">
@@ -76,11 +86,12 @@
                 </form>
                 <form method='post' action='mainPage.php' enctype='multipart/form-data' onSubmit="return validateCipherRequest(this)">
                     Select File: <input type='file' name='filename' size='10'><br><br>
-                    <input type='radio' name='method' value='EncryptSubstitution' checked>Encrypt via Substitution<br>
-                    <input type='radio' name='method' value='EncryptTransposition'>Encrypt via Transposition<br>
-                    <input type='radio' name='method' value='DecryptSubstitution'>Decrypt via Substitution<br>
-                    <input type='radio' name='method' value='DecryptTransposition'>Decrypt via Transposition<br><br>
-                    Key: <input type='text' name='key' size='25'><br><br><br>
+                    <input type='radio' name='method' value='encryptSubstitution' onclick="disable2ndKeyField(this)">Encrypt via Substitution<br>
+                    <input type='radio' name='method' value='encryptTransposition' onclick="disable2ndKeyField(this)">Encrypt via Transposition<br>
+                    <input type='radio' name='method' value='decryptSubstitution' onclick="disable2ndKeyField(this)">Decrypt via Substitution<br>
+                    <input type='radio' name='method' value='decryptTransposition' onclick="disable2ndKeyField(this)">Decrypt via Transposition<br><br>
+                    Key: <input type='text' name='key' size='25'>
+                    Second Key: <input type='text' name='secondKey' id='secondKey' size='25' disabled><br><br><br>
                     <input type='submit' name='cipher' value='ENCRYPT/DECRYPT'>
                 </form>
                 <hr/>
@@ -119,7 +130,8 @@
     }
 
     // check if file is uploaded --> this only occur when a POST request if made when a user is successfully logged in
-    if (isset($_POST['cipher'])) {
+    // I put two "isset"s here because there was an edge case where a session expired but a file was uploaded. The user would be prompted to log in again but since a POST request with name cipher was made, this code would run still
+    if (isset($_POST['cipher']) && isset($_SESSION['email'])) {
         // since it's file upload, get sanitized file input and name
         $filename = sanitizeString($_FILES['filename']['tmp_name']);
         // validate/ clean file name
@@ -129,23 +141,26 @@
 
         // open file
         $fh = fopen($filename, 'r') or die("File does not exist or you lack permission to open it");
-        // sanitize file input
-        $sanitizedInput = sanitizeString(fgets($fh));
+        // sanitize file input --> I don't think we covered how to read an entire file at once in class so I just did this; hopefully it's okay
+        $sanitizedInput = sanitizeString(fread($fh, filesize($filename)));
 
         // key
         $key = sanitizeString($_POST["key"]);
+        $secondKey = sanitizeString($_POST["secondKey"]); // if we're doing substitution, this should be an empty string...
+
+        // method
+        $method = sanitizeString($_POST["method"]);
 
         /* validate form inputs (with PHP) --> I ONLY VALIDATE FILE AND KEY INPUTS --> I don't validate the method because by default, one of the methods is selected; thus, no matter what, the user is forced to select a method, so I don't need to check whether or not a method has been picked because we are guaranteed that a method is picked
         --> basically, users can't "uncheck" a method, so since one of the methods is checked by default, there will always be a method selected */
         require_once 'validateFunctions.php';
         $fail = validateFile($filename, $ext);
-        // skipped method type validation
         $fail .= validateKey($key);
+        $fail .= validateMethod($method);
+        $fail .= validateSecondaryKey($secondKey, $method);
 
-        // to separate logic + hopefully make it easier to grade, I put the encryption and decryption functions in separate files
-        require_once('substitutionLogic.php');
-        require_once('doubleTranspositionLogic.php');
         if ($fail == '') {
+            // this is some HTML to make displaying the content a little cleaner --> it should be a left table + right table
             echo <<<_END
             <div class="text-container">
                 <div class="text-block original-text">
@@ -156,17 +171,13 @@
                     <p>Encrypted/Decrypted Text</p>
             _END;
 
-            $method = sanitizeString($_POST["method"]);
             // perform encryption/decryption, display result
-            if ($method === "EncryptSubstitution") {
-                $result = substitutionEncryption($sanitizedInput, $key);
-            } elseif ($method === "EncryptTransposition") {
-                $result = substitutionDecryption($sanitizedInput, $key);
-            } elseif ($method === "DecryptSubstitution") {
-                $result = doubleTranspositionEncryption($sanitizedInput, $key);
-            } elseif ($method === "DecryptTransposition") {
-                $result = doubleTranspositionDecryption($sanitizedInput, $key);
-            }
+            // to separate logic + hopefully make it easier to grade, I put the encryption and decryption functions in a separate file...
+            require_once('decryptoidFunctions.php');
+            if ($method === "encryptSubstitution") $result = substitutionEncryption($sanitizedInput, $key);
+            elseif ($method === "encryptTransposition") $result = doubleTranspositionEncryption($sanitizedInput, $key, $secondKey);
+            elseif ($method === "decryptSubstitution") $result = substitutionDecryption($sanitizedInput, $key);
+            elseif ($method === "decryptTransposition") $result = doubleTranspositionDecryption($sanitizedInput, $key, $secondKey);
             echo '<p>'.$result.'</p></div></div>';
 
         } else {
