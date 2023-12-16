@@ -111,6 +111,8 @@
         // reopen connection to database
         $conn = new mysqli($hn, $un, $pw, $db); 
 
+        questionsTableExists($conn);
+
         // since it's file upload, get sanitized file input and name
         $filename = sanitizeMySQL($conn, $_FILES['filename']['tmp_name']);
         // validate/ clean file name
@@ -139,7 +141,7 @@
                     // issue query to add question (if it's not a duplicate)
                     $query = "INSERT INTO questions (email, question) VALUES ('$email', '$question')";
                     $result = $conn->query($query); // we don't need to close this later... this will be a boolean
-                    echo "Question: $question --> This quesiton was added.<br>";
+                    echo "Question: $question --> This question was added.<br>";
                 } else {
                     echo "Duplicate question found: $question --> This will not be added again.<br>";
                 }

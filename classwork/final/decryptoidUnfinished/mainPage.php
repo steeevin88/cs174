@@ -139,17 +139,12 @@
         // get file extension name for validation
         $ext = sanitizeString($_FILES['filename']['type']);
 
-        // open file
-        $fh = fopen($filename, 'r') or die("File does not exist or you lack permission to open it");
-        // sanitize file input --> I don't think we covered how to read an entire file at once in class so I just did this; hopefully it's okay
-        $sanitizedInput = sanitizeString(fread($fh, filesize($filename)));
-
         // key
         $key = sanitizeString($_POST["key"]);
-        $secondKey = sanitizeString($_POST["secondKey"]); // if we're doing substitution, this should be an empty string...
+        $secondKey = (isset($_POST["secondKey"])) ? sanitizeString($_POST["secondKey"]) : ''; // if we're doing substitution, this should be an empty string...
 
         // method
-        $method = sanitizeString($_POST["method"]);
+        $method = (isset($_POST["method"])) ? sanitizeString($_POST["method"]) : '';
 
         /* validate form inputs (with PHP) --> I ONLY VALIDATE FILE AND KEY INPUTS --> I don't validate the method because by default, one of the methods is selected; thus, no matter what, the user is forced to select a method, so I don't need to check whether or not a method has been picked because we are guaranteed that a method is picked
         --> basically, users can't "uncheck" a method, so since one of the methods is checked by default, there will always be a method selected */
@@ -160,6 +155,11 @@
         $fail .= validateSecondaryKey($secondKey, $method);
 
         if ($fail == '') {
+            // open file
+            $fh = fopen($filename, 'r') or die("File does not exist or you lack permission to open it");
+            // sanitize file input --> I don't think we covered how to read an entire file at once in class so I just did this; hopefully it's okay
+            $sanitizedInput = sanitizeString(fread($fh, filesize($filename)));
+            
             // this is some HTML to make displaying the content a little cleaner --> it should be a left table + right table
             echo <<<_END
             <div class="text-container">
